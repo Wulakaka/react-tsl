@@ -1,35 +1,82 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import {OrbitControls} from "@react-three/drei";
+import {Canvas, extend, useThree} from "@react-three/fiber";
+import {Suspense, useEffect, useMemo} from "react";
+import * as THREE from "three/webgpu";
+import {Fn, vec3, abs, length, clamp, uv, mix} from "three/tsl";
+import Ball from "./components/Ball.jsx";
 
-function App() {
-  const [count, setCount] = useState(0)
+// import "./scene.css";
+
+extend(THREE);
+
+const Core = () => {
+  const {scene, gl} = useThree();
+
+  useEffect(() => {
+    const dirLight = new THREE.DirectionalLight(0xffffff, 4.0);
+    dirLight.position.set(10, 10, 10);
+    scene.add(dirLight);
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+    scene.add(ambientLight);
+  }, []);
+
+  const {nodes} = useMemo(() => {
+    const gradientNode = Fn(() => {
+      const color1 = vec3(0.01, 0.22, 0.98);
+      const color2 = vec3(0.36, 0.68, 1.0);
+      const t = clamp(length(abs(uv().sub(0.5))), 0.0, 0.8);
+      return mix(color1, color2, t);
+    });
+
+    const sphereColorNode = gradientNode();
+
+    return {
+      nodes: {
+        sphereColorNode,
+      },
+    };
+  }, []);
 
   return (
     <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
+      <mesh>
+        <sphereGeometry args={[50, 16, 16]} />
+        <meshBasicNodeMaterial
+          colorNode={nodes.sphereColorNode}
+          side={THREE.BackSide}
+        />
+      </mesh>
+      {/* <mesh>
+        <sphereGeometry args={[1, 256]} />
+        <meshStandardMaterial color="white" />
+      </mesh> */}
+      <Ball />
     </>
-  )
-}
+  );
+};
 
-export default App
+const Scene = () => {
+  return (
+    <>
+      <Canvas
+        shadows
+        gl={async (props) => {
+          const renderer = new THREE.WebGPURenderer({
+            ...props,
+            // forceWebGL: true,
+          });
+          await renderer.init();
+          console.log("isWebGL", renderer.backend.isWebGLBackend === true);
+          return renderer;
+        }}
+      >
+        <Suspense>
+          <OrbitControls />
+          <Core />
+        </Suspense>
+      </Canvas>
+    </>
+  );
+};
+
+export default Scene;
