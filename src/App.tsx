@@ -23,7 +23,7 @@ import {
   uniform,
 } from "three/tsl";
 import {cnoise} from "./perlin.ts";
-// import "./scene.css";
+import "./scene.css";
 
 extend(THREE);
 

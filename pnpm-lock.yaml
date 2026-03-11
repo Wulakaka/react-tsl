@@ -23,6 +23,9 @@ importers:
       three:
         specifier: ^0.183.2
         version: 0.183.2
+      uuid:
+        specifier: ^13.0.0
+        version: 13.0.0
     devDependencies:
       '@eslint/js':
         specifier: ^9.39.1
@@ -1176,6 +1179,10 @@ packages:
   utility-types@3.11.0:
     resolution: {integrity: sha512-6Z7Ma2aVEWisaL6TvBCy7P8rm2LQoPv6dJ7ecIaIixHcwfbJ0x7mWdbcwlIM5IGQxPZSFYeqRCqlOOeKoJYMkw==}
     engines: {node: '>= 4'}
+
+  uuid@13.0.0:
+    resolution: {integrity: sha512-XQegIaBTVUjSHliKqcnFqYypAd4S+WCYt5NIeRs6w/UAry7z8Y9j5ZwRRL4kzq9U3sD6v+85er9FvkEaBpji2w==}
+    hasBin: true
 
   vite@8.0.0-beta.18:
     resolution: {integrity: sha512-azgNbWdsO/WBqHQxwSCy+zd+Fq+37Fix2hn64cQuiUvaaGGSUac7f8RGQhI1aQl9OKbfWblrCFLWs+tln06c2A==}
@@ -2388,6 +2395,8 @@ snapshots:
       react: 19.2.4
 
   utility-types@3.11.0: {}
+
+  uuid@13.0.0: {}
 
   vite@8.0.0-beta.18(@types/node@24.12.0):
     dependencies:
