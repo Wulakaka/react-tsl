@@ -57,6 +57,9 @@ const Core = () => {
 
   const {nodes, uniforms} = useMemo(() => {
     const time = uniform(0.0);
+    // 这里必须要用 varying
+    // 因为 normal 是在 vertex shader 里计算的，并且自动插值
+    // 然后在 fragment shader 里读取
     const vNormal = varying(vec3(), "vNormal");
 
     const updatePos = Fn(([pos, time]) => {
