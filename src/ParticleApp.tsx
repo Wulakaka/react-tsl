@@ -23,6 +23,7 @@ const COUNT = 30000;
 const Core = () => {
   const {gl} = useThree();
 
+  // 作者使用 useMemo 来避免一些关键结构被意外地重新创建
   const {nodes, uniforms, utils} = useMemo(() => {
     const spawnPositionsBuffer = instancedArray(COUNT, "vec3");
     const offsetPositionsBuffer = instancedArray(COUNT, "vec3");
