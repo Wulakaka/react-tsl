@@ -7,6 +7,7 @@ import {
   mix,
   uv,
   Fn,
+  uniform,
   instancedArray,
   instanceIndex,
   wgslFn,
@@ -36,6 +37,24 @@ const Core = () => {
         return fract(sin(f32(index) * 12.9898) * 43758.5453);
       }
     `);
+
+    const thomasAttractor = wgslFn(`
+      fn thomasAttractor(pos: vec3<f32>) -> vec3<f32> {
+        let b = 0.19;
+
+        let dt = 0.015;
+
+        let x = pos.x;
+        let y = pos.y;
+        let z = pos.z;
+
+        let dx = (-b * x + sin(y)) * dt;
+        let dy = (-b * y + sin(z)) * dt;
+        let dz = (-b * z + sin(x)) * dt;
+
+        return vec3(dx, dy, dz);
+      }
+      `);
 
     const computeInitWgsl = wgslFn(
       `
@@ -68,6 +87,13 @@ const Core = () => {
       offsetPositions: offsetPositionsBuffer,
       index: instanceIndex,
     }).compute(COUNT);
+
+    const computeNodeUpdate = Fn(() => {
+      const updatedOffsetPosition = thomasAttractor({
+        pos: spawnPosition.add(offsetPosition),
+      });
+      offsetPosition.addAssign(updatedOffsetPosition);
+    })().compute(COUNT);
 
     const scaleNode = wgslFn(
       `
@@ -125,6 +151,7 @@ const Core = () => {
       nodes: {
         positionNode,
         computeNode,
+        computeNodeUpdate,
         colorNode,
         scaleNode,
       },
@@ -144,6 +171,11 @@ const Core = () => {
   useEffect(() => {
     compute();
   }, [compute]);
+
+  useFrame((state) => {
+    const {gl} = state;
+    gl.compute(nodes.computeNodeUpdate);
+  });
 
   return (
     <>
@@ -167,7 +199,7 @@ const Scene = () => {
     <>
       <Canvas
         shadows
-        camera={{position: [3, 3, 3]}}
+        camera={{position: [-4.0, 3.0, 4.0]}}
         gl={async (props) => {
           const renderer = new THREE.WebGPURenderer(props);
           await renderer.init();
